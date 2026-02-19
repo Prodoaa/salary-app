@@ -75,7 +75,7 @@ if st.button("بحث"):
     else:
         try:
             # قراءة ملف الإكسل المرفوع
-            df = pd.read_excel('salary_data.xlsx')
+           df = pd.read_excel('salary_data.xlsx', engine='openpyxl')
             
             # تنظيف الرقم الوظيفي
             df['الرقم الوظيفي'] = df['الرقم الوظيفي'].astype(str).str.replace(r'\.0$', '', regex=True)
@@ -99,4 +99,5 @@ if st.button("بحث"):
         except FileNotFoundError:
             st.error("ملف البيانات غير موجود")
         except Exception as e:
+
             st.error(f"حدث خطأ: {e}")
