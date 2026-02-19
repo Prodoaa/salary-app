@@ -76,9 +76,8 @@ if st.button("بحث"):
         try:
             # قراءة ملف الإكسل المرفوع
            df = pd.read_excel('salary_data.xlsx', engine='openpyxl')
-            
             # تنظيف الرقم الوظيفي
-            df['الرقم الوظيفي'] = df['الرقم الوظيفي'].astype(str).str.replace(r'\.0$', '', regex=True)
+           df['الرقم الوظيفي'] = df['الرقم الوظيفي'].astype(str).str.replace(r'\.0$', '', regex=True)
             
             result = df[df['الرقم الوظيفي'] == emp_id]
 
@@ -101,3 +100,4 @@ if st.button("بحث"):
         except Exception as e:
 
             st.error(f"حدث خطأ: {e}")
+
