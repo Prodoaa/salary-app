@@ -4,24 +4,24 @@ from fpdf import FPDF
 import arabic_reshaper
 from bidi.algorithm import get_display
 import os
+from github import Github
 
 # --- إعداد الصفحة ---
 st.set_page_config(page_title="نظام الرواتب", layout="centered")
 
-# --- دالة معالجة النص العربي ---
+# --- دوال مساعدة ---
 def fix_text(text):
     if pd.isna(text): return ""
     text = str(text)
     reshaped_text = arabic_reshaper.reshape(text)
     return get_display(reshaped_text, base_dir='R')
 
-# --- دالة إنشاء PDF ---
 def create_pdf(data_row):
     font_path = "arial.ttf"
     if not os.path.exists(font_path):
-        st.error("ملف الخط arial.ttf غير موجود! تأكد من رفعه.")
+        st.error("ملف الخط arial.ttf غير موجود!")
         return None
-
+    
     pdf = FPDF()
     pdf.add_page()
     pdf.add_font('ArabicFont', '', font_path, uni=True)
@@ -59,7 +59,51 @@ def create_pdf(data_row):
 
     return pdf.output(dest='S').encode('latin-1')
 
-# --- الواجهة ---
+# --- دالة تحديث الملف على GitHub ---
+def update_github_file(uploaded_file):
+    try:
+        # قراءة البيانات من Secrets
+        token = st.secrets["general"]["GITHUB_TOKEN"]
+        repo_name = st.secrets["general"]["REPO_NAME"]
+        
+        g = Github(token)
+        repo = g.get_repo(repo_name)
+        
+        # الحصول على الملف الحالي
+        contents = repo.get_contents("salary_data.xlsx")
+        
+        # تحديث الملف بالبيانات الجديدة
+        repo.update_file(contents.path, "تحديث الرواتب (تلقائي)", uploaded_file.getvalue(), contents.sha)
+        return True
+    except Exception as e:
+        st.error(f"خطأ في الاتصال بـ GitHub: {e}")
+        return False
+
+# ==========================================
+# الواجهة الرئيسية
+# ==========================================
+
+# القائمة الجانبية (للمدير فقط)
+with st.sidebar:
+    st.header("🔐 دخول الإدارة")
+    password = st.text_input("كلمة المرور", type="password")
+    
+    if password == st.secrets["general"]["ADMIN_PASSWORD"]:
+        st.success("تم الدخول بنجاح")
+        st.write("---")
+        st.write("📤 **تحديث ملف الرواتب**")
+        uploaded_file = st.file_uploader("اختر ملف Excel الجديد", type=['xlsx'])
+        
+        if uploaded_file is not None:
+            if st.button("تحديث البيانات الآن"):
+                with st.spinner('جاري رفع الملف للسيرفر...'):
+                    if update_github_file(uploaded_file):
+                        st.success("✅ تم تحديث الرواتب بنجاح!")
+                        st.info("سيتم إعادة تحميل الموقع خلال لحظات لتطبيق التغييرات.")
+    elif password:
+        st.error("كلمة المرور غير صحيحة")
+
+# الواجهة الرئيسية (للموظفين)
 st.markdown("<h1 style='text-align: center;'>نظام الرواتب الإلكتروني</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center;'>جامعة ابن سينا</h3>", unsafe_allow_html=True)
 
@@ -71,13 +115,12 @@ if st.button("بحث واستخراج القسيمة"):
         st.warning("الرجاء إدخال الرقم الوظيفي")
     else:
         try:
-            # قراءة الملف (تم ضبط المسافات هنا بدقة)
-            df = pd.read_excel('salary_data.xlsx')
+            # قراءة الملف بengine openpyxl
+            df = pd.read_excel('salary_data.xlsx', engine='openpyxl')
             
             # تنظيف الرقم الوظيفي
             df['الرقم الوظيفي'] = df['الرقم الوظيفي'].astype(str).str.replace(r'\.0$', '', regex=True)
             
-            # البحث
             result = df[df['الرقم الوظيفي'] == emp_id]
 
             if not result.empty:
@@ -97,7 +140,7 @@ if st.button("بحث واستخراج القسيمة"):
                 st.error("رقم وظيفي غير صحيح أو غير موجود")
         
         except FileNotFoundError:
-            st.error("ملف البيانات salary_data.xlsx غير موجود")
+            st.error("جاري تحديث البيانات... الرجاء المحاولة بعد دقيقة.")
         except Exception as e:
             st.error(f"حدث خطأ: {e}")
 
