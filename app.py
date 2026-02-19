@@ -17,12 +17,9 @@ def fix_text(text):
 
 # --- دالة إنشاء PDF ---
 def create_pdf(data_row):
-    # الخط سيكون مرفوعاً بجانب الكود
-    font_path = "arial.ttf" 
-    
-    # التحقق من وجود الخط
+    font_path = "arial.ttf"
     if not os.path.exists(font_path):
-        st.error("ملف الخط arial.ttf غير موجود! تأكد من رفعه مع الملفات.")
+        st.error("ملف الخط arial.ttf غير موجود! تأكد من رفعه.")
         return None
 
     pdf = FPDF()
@@ -60,44 +57,47 @@ def create_pdf(data_row):
     footer = fix_text("توقيع المدير المالي: __________________")
     pdf.cell(0, 10, txt=footer, ln=1, align='L')
 
-    # إرجاع محتوى الملف كـ bytes
     return pdf.output(dest='S').encode('latin-1')
 
 # --- الواجهة ---
-st.title("نظام الرواتب - جامعة ابن سينا")
-st.write("أدخل الرقم الوظيفي لتحميل قسيمة الراتب")
+st.markdown("<h1 style='text-align: center;'>نظام الرواتب الإلكتروني</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center;'>جامعة ابن سينا</h3>", unsafe_allow_html=True)
 
-emp_id = st.text_input("الرقم الوظيفي", max_chars=10)
+st.write("---")
+emp_id = st.text_input("أدخل الرقم الوظيفي هنا:", max_chars=10)
 
-if st.button("بحث"):
+if st.button("بحث واستخراج القسيمة"):
     if not emp_id:
-        st.warning("الرجاء كتابة الرقم الوظيفي")
+        st.warning("الرجاء إدخال الرقم الوظيفي")
     else:
         try:
-            # قراءة ملف الإكسل المرفوع
-           df = pd.read_excel('salary_data.xlsx', engine='openpyxl')
-            # تنظيف الرقم الوظيفي
-           df['الرقم الوظيفي'] = df['الرقم الوظيفي'].astype(str).str.replace(r'\.0$', '', regex=True)
+            # قراءة الملف (تم ضبط المسافات هنا بدقة)
+            df = pd.read_excel('salary_data.xlsx')
             
+            # تنظيف الرقم الوظيفي
+            df['الرقم الوظيفي'] = df['الرقم الوظيفي'].astype(str).str.replace(r'\.0$', '', regex=True)
+            
+            # البحث
             result = df[df['الرقم الوظيفي'] == emp_id]
 
             if not result.empty:
                 data = result.iloc[0].to_dict()
-                st.success(f"مرحباً: {data['الاسم']}")
+                st.success(f"تم العثور على الموظف: {data['الاسم']}")
                 
                 pdf_bytes = create_pdf(data)
+                
                 if pdf_bytes:
                     st.download_button(
-                        label="📥 تحميل القسيمة (PDF)",
+                        label="📄 تحميل قسيمة الراتب (PDF)",
                         data=pdf_bytes,
-                        file_name=f"Salary_{emp_id}.pdf",
+                        file_name=f"salary_{emp_id}.pdf",
                         mime="application/pdf"
                     )
             else:
-                st.error("رقم وظيفي غير صحيح")
+                st.error("رقم وظيفي غير صحيح أو غير موجود")
+        
         except FileNotFoundError:
-            st.error("ملف البيانات غير موجود")
+            st.error("ملف البيانات salary_data.xlsx غير موجود")
         except Exception as e:
-
             st.error(f"حدث خطأ: {e}")
 
