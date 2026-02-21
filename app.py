@@ -118,7 +118,7 @@ with st.sidebar:
 
 # الواجهة الرئيسية (للموظفين)
 st.markdown("<h1 style='text-align: center;'>نظام الرواتب الإلكتروني</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center;'>جامعة ابن سينا</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center;'>جامعة ابن سينا للعلوم الطبية والصيدلانية</h3>", unsafe_allow_html=True)
 
 st.write("---")
 emp_id = st.text_input("أدخل الرقم الوظيفي هنا:", max_chars=10)
@@ -156,3 +156,4 @@ if st.button("بحث واستخراج القسيمة"):
             st.error("جاري تحديث البيانات أو أن ملف البيانات غير موجود. الرجاء المحاولة بعد قليل.")
         except Exception as e:
             st.error(f"حدث خطأ: {e}")
+
