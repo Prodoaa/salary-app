@@ -59,24 +59,31 @@ def create_pdf(data_row):
 
     return pdf.output(dest='S').encode('latin-1')
 
-# --- دالة تحديث الملف على GitHub ---
+# --- دالة تحديث الملف على GitHub والموقع محلياً ---
 def update_github_file(uploaded_file):
     try:
-        # قراءة البيانات من Secrets
+        # 1. تحديث الملف داخل الموقع ليعمل فوراً وبدون انتظار
+        with open("salary_data.xlsx", "wb") as f:
+            f.write(uploaded_file.getvalue())
+
+        # 2. رفع الملف إلى GitHub للحفظ الدائم
         token = st.secrets["general"]["GITHUB_TOKEN"]
         repo_name = st.secrets["general"]["REPO_NAME"]
         
         g = Github(token)
         repo = g.get_repo(repo_name)
         
-        # الحصول على الملف الحالي
-        contents = repo.get_contents("salary_data.xlsx")
-        
-        # تحديث الملف بالبيانات الجديدة
-        repo.update_file(contents.path, "تحديث الرواتب (تلقائي)", uploaded_file.getvalue(), contents.sha)
+        try:
+            # محاولة جلب الملف إذا كان موجوداً لتحديثه
+            contents = repo.get_contents("salary_data.xlsx")
+            repo.update_file(contents.path, "تحديث الرواتب (تلقائي)", uploaded_file.getvalue(), contents.sha)
+        except:
+            # إذا لم يكن الملف موجوداً على GitHub، قم بإنشائه
+            repo.create_file("salary_data.xlsx", "إنشاء ملف الرواتب لأول مرة", uploaded_file.getvalue())
+            
         return True
     except Exception as e:
-        st.error(f"خطأ في الاتصال بـ GitHub: {e}")
+        st.error(f"حدث خطأ أثناء الرفع: {e}")
         return False
 
 # ==========================================
@@ -88,7 +95,13 @@ with st.sidebar:
     st.header("🔐 دخول الإدارة")
     password = st.text_input("كلمة المرور", type="password")
     
-    if password == st.secrets["general"]["ADMIN_PASSWORD"]:
+    # التحقق من كلمة المرور
+    if "general" in st.secrets and "ADMIN_PASSWORD" in st.secrets["general"]:
+        correct_password = st.secrets["general"]["ADMIN_PASSWORD"]
+    else:
+        correct_password = "123" # كلمة مرور افتراضية في حال نسيان إعداد Secrets
+        
+    if password == correct_password:
         st.success("تم الدخول بنجاح")
         st.write("---")
         st.write("📤 **تحديث ملف الرواتب**")
@@ -96,10 +109,10 @@ with st.sidebar:
         
         if uploaded_file is not None:
             if st.button("تحديث البيانات الآن"):
-                with st.spinner('جاري رفع الملف للسيرفر...'):
+                with st.spinner('جاري رفع الملف للسيرفر وتحديث البيانات...'):
                     if update_github_file(uploaded_file):
                         st.success("✅ تم تحديث الرواتب بنجاح!")
-                        st.info("سيتم إعادة تحميل الموقع خلال لحظات لتطبيق التغييرات.")
+                        st.info("البيانات الجديدة جاهزة للبحث الآن.")
     elif password:
         st.error("كلمة المرور غير صحيحة")
 
@@ -115,7 +128,7 @@ if st.button("بحث واستخراج القسيمة"):
         st.warning("الرجاء إدخال الرقم الوظيفي")
     else:
         try:
-            # قراءة الملف بengine openpyxl
+            # قراءة الملف 
             df = pd.read_excel('salary_data.xlsx', engine='openpyxl')
             
             # تنظيف الرقم الوظيفي
@@ -140,7 +153,6 @@ if st.button("بحث واستخراج القسيمة"):
                 st.error("رقم وظيفي غير صحيح أو غير موجود")
         
         except FileNotFoundError:
-            st.error("جاري تحديث البيانات... الرجاء المحاولة بعد دقيقة.")
+            st.error("جاري تحديث البيانات أو أن ملف البيانات غير موجود. الرجاء المحاولة بعد قليل.")
         except Exception as e:
             st.error(f"حدث خطأ: {e}")
-
