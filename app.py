@@ -59,12 +59,11 @@ st.markdown("""
             width: 100% !important;
             max-width: 700px !important;
             margin: 0 auto !important;
-            border: 2px solid #000 !important; /* إطار أسود واضح للطباعة */
+            border: 2px solid #000 !important;
             box-shadow: none !important;
             page-break-inside: avoid !important;
         }
 
-        /* إعدادات حجم الورقة القياسي */
         @page { size: A4 portrait; margin: 10mm; }
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
@@ -88,7 +87,6 @@ with st.sidebar:
 # ==========================================
 # 4. ترويسة النظام
 # ==========================================
-# تمت إضافة كلاس print-hide هنا ليختفي هذا العنوان عند الطباعة
 st.markdown("""
 <div class="print-hide" style='background: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px solid #cbd5e1;'>
     <h2 style='color: #0f172a; margin: 0;'>🏛️ بوابة الرواتب الإلكترونية</h2>
@@ -134,6 +132,7 @@ if search_button:
         <h3 style="color: #0f172a; margin: 0; font-size: 22px;">🧾 وصل استلام راتب</h3>
         <div style="color: #64748b; font-size: 14px; margin-top: 5px;">كشف مفردات الراتب الشهري</div>
     </div>
+    
     <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: right; margin-bottom: 25px;">
         <tbody>
             <tr>
@@ -150,9 +149,17 @@ if search_button:
                 <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #475569;">المنصب</td>
                 <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;" colspan="3">{row.get('المنصب', '-')}</td>
             </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; width: 25%; color: #475569;">الدرجة الوظيفية</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1; width: 25%;">{row.get('الدرجة الوظيفية', '-')}</td>
+                <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; width: 25%; color: #475569;">المرحلة</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1; width: 25%;">{row.get('المرحلة', '-')}</td>
+            </tr>
         </tbody>
     </table>
+    
     <div style="font-weight: bold; color: #334155; margin-bottom: 10px; font-size: 15px;">📊 تفاصيل المستحقات والاستقطاعات:</div>
+    
     <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: right;">
         <tbody>
             <tr>
