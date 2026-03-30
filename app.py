@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 import os
 
 # ==========================================
-# 1. إعدادات الصفحة الأساسية (مع إجبار ظهور الشريط الجانبي)
+# 1. إعدادات الصفحة الأساسية
 # ==========================================
 st.set_page_config(
     page_title="بوابة الرواتب | جامعة ابن سينا", 
@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. التصميم الاحترافي (CSS)
+# 2. التصميم الاحترافي (CSS) - متضمن حلول الطباعة العمودية
 # ==========================================
 st.markdown("""
 <style>
@@ -44,7 +44,7 @@ st.markdown("""
         background: linear-gradient(90deg, #0369a1 0%, #075985 100%);
     }
 
-    /* بطاقات المعلومات */
+    /* بطاقات المعلومات العلوية */
     .info-card {
         background: rgba(255, 255, 255, 0.95);
         padding: 20px;
@@ -58,11 +58,33 @@ st.markdown("""
     .card-value { color: #1e293b; font-size: 20px; font-weight: bold; }
     .salary-value { color: #059669; font-size: 32px; font-weight: 900; }
 
-    /* إخفاء العناصر عند طباعة PDF */
+    /* =========================================
+       إعدادات الطباعة الاحترافية (ورقة واحدة بالطول + إظهار الألوان)
+       ========================================= */
     @media print {
-        [data-testid="stSidebar"], header, [data-testid="stForm"], iframe { display: none !important; }
+        * {
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        
+        /* جعل الورقة بالطول (Portrait) لتناسب الشكل العمودي */
+        @page {
+            size: A4 portrait;
+            margin: 15mm;
+        }
+        
+        /* إخفاء القوائم والأزرار لتبدو كوثيقة رسمية */
+        [data-testid="stSidebar"], header, [data-testid="stForm"], iframe, button { 
+            display: none !important; 
+        }
+        
         .stApp { background: white !important; }
-        .info-card { box-shadow: none !important; border: 2px solid #000 !important; }
+        
+        /* منع انقسام البطاقات والجدول بين صفحتين */
+        .info-card, .receipt-container, table, tr { 
+            page-break-inside: avoid !important; 
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -141,37 +163,51 @@ if search_button:
                         st.markdown(f'<div class="info-card" style="border-bottom: 4px solid #6366f1;"><div class="card-label">معلومات الموظف</div><div class="card-value">{row.get("الاسم", "-")} <br> <span style="font-size: 14px; color: #64748b; background: #e2e8f0; padding: 2px 8px; border-radius: 8px;">ID: {row.get("الرقم الوظيفي", "-")}</span></div></div>', unsafe_allow_html=True)
                     st.markdown("</div>", unsafe_allow_html=True)
                     
-                    st.markdown("<h4 style='text-align: right; color: #1e293b; direction: rtl; margin-top: 20px; font-weight: bold;'>📊 الكشف التفصيلي للمفردات:</h4>", unsafe_allow_html=True)
-                    html_table = f"""
-                    <div style="direction: rtl; background: white; border-radius: 8px; padding: 5px; border: 1px solid #e2e8f0; overflow-x: auto;">
-                      <table style="width: 100%; border-collapse: collapse; text-align: center;">
-                        <tr style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                          <th style="padding: 15px; font-weight: 600;">الراتب الاسمي</th>
-                          <th style="padding: 15px; font-weight: 600;">الخدمة الجامعية</th>
-                          <th style="padding: 15px; font-weight: 600;">النقل</th>
-                          <th style="padding: 15px; font-weight: 600;">الزوجية</th>
-                          <th style="padding: 15px; font-weight: bold; color: #0369a1;">الراتب الكامل</th>
-                          <th style="padding: 15px; font-weight: 600; color: #b91c1c;">التقاعد</th>
-                          <th style="padding: 15px; font-weight: 600; color: #b91c1c;">الضريبة</th>
-                        </tr>
-                        <tr style="font-size: 16px; font-weight: bold; color: #0f172a;">
-                          <td style="padding: 15px; border-bottom: 1px solid #f1f5f9;">{row.get('الراتب الاسمي', '-')}</td>
-                          <td style="padding: 15px; border-bottom: 1px solid #f1f5f9;">{row.get('الخدمة الجامعية', '-')}</td>
-                          <td style="padding: 15px; border-bottom: 1px solid #f1f5f9;">{row.get('النقل', '-')}</td>
-                          <td style="padding: 15px; border-bottom: 1px solid #f1f5f9;">{row.get('الزوجية', '-')}</td>
-                          <td style="padding: 15px; border-bottom: 1px solid #f1f5f9; color: #0369a1; background: #f0f9ff;">{row.get('الراتب الكامل', '-')}</td>
-                          <td style="padding: 15px; border-bottom: 1px solid #f1f5f9; color: #ef4444;">{row.get('التقاعد', '-')}</td>
-                          <td style="padding: 15px; border-bottom: 1px solid #f1f5f9; color: #ef4444;">{row.get('الضريبة', '-')}</td>
-                        </tr>
-                      </table>
+                    st.markdown("<h4 style='text-align: right; color: #1e293b; direction: rtl; margin-top: 20px; font-weight: bold;'>📋 الكشف التفصيلي للمفردات:</h4>", unsafe_allow_html=True)
+                    
+                    # التصميم العمودي الجديد (شكل وصل) لضمان ملاءمته للطباعة والهاتف
+                    html_vertical_table = f"""
+                    <div class="receipt-container" style="direction: rtl; background: white; border-radius: 12px; padding: 20px; border: 2px solid #e2e8f0; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 18px;">
+                            <tbody>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 15px; font-weight: bold; color: #475569; width: 40%;">الراتب الاسمي</td>
+                                    <td style="padding: 15px; font-weight: bold; color: #1e293b; text-align: left;">{row.get('الراتب الاسمي', '-')}</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 15px; font-weight: bold; color: #475569;">الخدمة الجامعية</td>
+                                    <td style="padding: 15px; font-weight: bold; color: #1e293b; text-align: left;">{row.get('الخدمة الجامعية', '-')}</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 15px; font-weight: bold; color: #475569;">النقل</td>
+                                    <td style="padding: 15px; font-weight: bold; color: #1e293b; text-align: left;">{row.get('النقل', '-')}</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 15px; font-weight: bold; color: #475569;">الزوجية</td>
+                                    <td style="padding: 15px; font-weight: bold; color: #1e293b; text-align: left;">{row.get('الزوجية', '-')}</td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid #0284c7; background-color: #f0f9ff;">
+                                    <td style="padding: 15px; font-weight: bold; color: #0369a1; font-size: 19px;">الراتب الكامل</td>
+                                    <td style="padding: 15px; font-weight: bold; color: #0369a1; text-align: left; font-size: 20px;">{row.get('الراتب الكامل', '-')}</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 15px; font-weight: bold; color: #b91c1c;">التقاعد (استقطاع)</td>
+                                    <td style="padding: 15px; font-weight: bold; color: #ef4444; text-align: left;">{row.get('التقاعد', '-')}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px; font-weight: bold; color: #b91c1c;">الضريبة (استقطاع)</td>
+                                    <td style="padding: 15px; font-weight: bold; color: #ef4444; text-align: left;">{row.get('الضريبة', '-')}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     """
-                    st.markdown(html_table, unsafe_allow_html=True)
+                    st.markdown(html_vertical_table, unsafe_allow_html=True)
 
                     components.html(
                         """
-                        <div style="text-align: center; margin-top: 25px;">
-                            <button onclick="window.parent.print()" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: white; border-radius: 8px; border: none; padding: 12px 30px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button onclick="window.parent.print()" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: white; border-radius: 8px; border: none; padding: 12px 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">
                                 📥 طباعة / حفظ بصيغة PDF
                             </button>
                         </div>
