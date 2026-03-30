@@ -83,7 +83,7 @@ with col2:
 st.write("---")
 
 # ==========================================
-# 6. معالجة البيانات وعرض النتائج (البطاقة الموحدة)
+# 6. معالجة البيانات وعرض النتائج
 # ==========================================
 if search_button:
     if not emp_id.strip():
@@ -103,73 +103,70 @@ if search_button:
                 if not user_data.empty:
                     row = user_data.iloc[0]
                     
-                    # البطاقة الموحدة (تشمل معلومات الموظف والمفردات)
+                    # الكود تم إزالة المسافات منه لكي لا يظهر كنص
                     html_unified_card = f"""
-                    <div class="receipt-container" style="direction: rtl; background: white; border-radius: 10px; padding: 25px; border: 2px solid #cbd5e1; max-width: 550px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                        
-                        <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px;">
-                            <h3 style="color: #0f172a; margin: 0; font-size: 22px;">🧾 وصل استلام راتب</h3>
-                            <div style="color: #64748b; font-size: 14px; margin-top: 5px;">كشف مفردات الراتب الشهري</div>
-                        </div>
-
-                        <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: right; margin-bottom: 25px;">
-                            <tbody>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; width: 25%; color: #475569;">الاسم</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;" colspan="3">{row.get('الاسم', '-')}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; width: 25%; color: #475569;">الرقم الوظيفي</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1; width: 25%;">{row.get('الرقم الوظيفي', '-')}</td>
-                                    <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; width: 25%; color: #475569;">اللقب العلمي</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1; width: 25%;">{row.get('اللقب العلمي', '-')}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #475569;">المنصب</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;" colspan="3">{row.get('المنصب', '-')}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <div style="font-weight: bold; color: #334155; margin-bottom: 10px; font-size: 15px;">📊 تفاصيل المستحقات والاستقطاعات:</div>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: right;">
-                            <tbody>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; color: #475569; width: 45%; border: 1px solid #cbd5e1; background-color: #f8fafc;">الراتب الاسمي</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">{row.get('الراتب الاسمي', '-')}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; color: #475569; border: 1px solid #cbd5e1; background-color: #f8fafc;">الخدمة الجامعية</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">{row.get('الخدمة الجامعية', '-')}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; color: #475569; border: 1px solid #cbd5e1; background-color: #f8fafc;">النقل</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">{row.get('النقل', '-')}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; color: #475569; border: 1px solid #cbd5e1; background-color: #f8fafc;">الزوجية</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">{row.get('الزوجية', '-')}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; color: #0369a1; border: 1px solid #93c5fd; background-color: #eff6ff;">الراتب الكامل</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #0369a1; border: 1px solid #93c5fd; background-color: #eff6ff;">{row.get('الراتب الكامل', '-')}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; color: #b91c1c; border: 1px solid #fca5a5; background-color: #fef2f2;">التقاعد (استقطاع)</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #ef4444; border: 1px solid #fca5a5; background-color: #fef2f2;">{row.get('التقاعد', '-')}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; color: #b91c1c; border: 1px solid #fca5a5; background-color: #fef2f2;">الضريبة (استقطاع)</td>
-                                    <td style="padding: 8px; font-weight: bold; color: #ef4444; border: 1px solid #fca5a5; background-color: #fef2f2;">{row.get('الضريبة', '-')}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 12px 8px; font-weight: 900; color: #059669; border: 2px solid #10b981; background-color: #ecfdf5; font-size: 16px;">الصافي للاستلام (د.ع)</td>
-                                    <td style="padding: 12px 8px; font-weight: 900; color: #059669; border: 2px solid #10b981; background-color: #ecfdf5; font-size: 20px;">{row.get('الراتب الصافي بعد الاستقطاعات', '-')}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    """
+<div class="receipt-container" style="direction: rtl; background: white; border-radius: 10px; padding: 25px; border: 2px solid #cbd5e1; max-width: 550px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px;">
+        <h3 style="color: #0f172a; margin: 0; font-size: 22px;">🧾 وصل استلام راتب</h3>
+        <div style="color: #64748b; font-size: 14px; margin-top: 5px;">كشف مفردات الراتب الشهري</div>
+    </div>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: right; margin-bottom: 25px;">
+        <tbody>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; width: 25%; color: #475569;">الاسم</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;" colspan="3">{row.get('الاسم', '-')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; width: 25%; color: #475569;">الرقم الوظيفي</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1; width: 25%;">{row.get('الرقم الوظيفي', '-')}</td>
+                <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; width: 25%; color: #475569;">اللقب العلمي</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1; width: 25%;">{row.get('اللقب العلمي', '-')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #475569;">المنصب</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;" colspan="3">{row.get('المنصب', '-')}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="font-weight: bold; color: #334155; margin-bottom: 10px; font-size: 15px;">📊 تفاصيل المستحقات والاستقطاعات:</div>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: right;">
+        <tbody>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; color: #475569; width: 45%; border: 1px solid #cbd5e1; background-color: #f8fafc;">الراتب الاسمي</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">{row.get('الراتب الاسمي', '-')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; color: #475569; border: 1px solid #cbd5e1; background-color: #f8fafc;">الخدمة الجامعية</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">{row.get('الخدمة الجامعية', '-')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; color: #475569; border: 1px solid #cbd5e1; background-color: #f8fafc;">النقل</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">{row.get('النقل', '-')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; color: #475569; border: 1px solid #cbd5e1; background-color: #f8fafc;">الزوجية</td>
+                <td style="padding: 8px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">{row.get('الزوجية', '-')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; color: #0369a1; border: 1px solid #93c5fd; background-color: #eff6ff;">الراتب الكامل</td>
+                <td style="padding: 8px; font-weight: bold; color: #0369a1; border: 1px solid #93c5fd; background-color: #eff6ff;">{row.get('الراتب الكامل', '-')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; color: #b91c1c; border: 1px solid #fca5a5; background-color: #fef2f2;">التقاعد (استقطاع)</td>
+                <td style="padding: 8px; font-weight: bold; color: #ef4444; border: 1px solid #fca5a5; background-color: #fef2f2;">{row.get('التقاعد', '-')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; color: #b91c1c; border: 1px solid #fca5a5; background-color: #fef2f2;">الضريبة (استقطاع)</td>
+                <td style="padding: 8px; font-weight: bold; color: #ef4444; border: 1px solid #fca5a5; background-color: #fef2f2;">{row.get('الضريبة', '-')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px 8px; font-weight: 900; color: #059669; border: 2px solid #10b981; background-color: #ecfdf5; font-size: 16px;">الصافي للاستلام (د.ع)</td>
+                <td style="padding: 12px 8px; font-weight: 900; color: #059669; border: 2px solid #10b981; background-color: #ecfdf5; font-size: 20px;">{row.get('الراتب الصافي بعد الاستقطاعات', '-')}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+"""
                     st.markdown(html_unified_card, unsafe_allow_html=True)
 
                     components.html(
