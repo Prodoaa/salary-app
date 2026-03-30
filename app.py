@@ -14,26 +14,32 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. التصميم الاحترافي (CSS) + إعدادات الطباعة الذكية
+# 2. التصميم الاحترافي (CSS) + إعدادات الأمان والطباعة
 # ==========================================
 st.markdown("""
 <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {background: transparent !important;}
+    /* 🔴 إعدادات الأمان: إخفاء قوائم Streamlit وأدوات المطور 🔴 */
+    #MainMenu {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+    header {visibility: hidden !important;}
+    [data-testid="stToolbar"] {visibility: hidden !important;}
+    [data-testid="stDecoration"] {visibility: hidden !important;}
+    [data-testid="stHeader"] {visibility: hidden !important;}
 
+    /* إعدادات الخلفية والخطوط */
     .stApp {
         background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    /* تنسيق زر البحث */
     [data-testid="stFormSubmitButton"] button {
         background: linear-gradient(90deg, #0284c7 0%, #0369a1 100%);
         color: white; border-radius: 8px; border: none; padding: 8px;
         font-size: 16px; font-weight: bold; transition: all 0.3s ease;
     }
 
-    /* إعدادات الطباعة */
+    /* إعدادات الطباعة الذكية */
     @media print {
         .print-hide, [data-testid="stSidebar"], header, footer, [data-testid="stForm"], button, hr, .stDivider {
             display: none !important;
@@ -71,19 +77,19 @@ st.markdown("""
 with st.sidebar:
     st.markdown("<h3 style='text-align: center; direction: rtl;'>⚙️ الإدارة</h3>", unsafe_allow_html=True)
     password = st.text_input("رمز المرور:", type="password", key="admin_pass")
-    if password == "1234":
+    if password == "1234":  # يُفضل لاحقاً تغيير هذه الكلمة لتكون أكثر أماناً
         st.success("✅ تم الدخول")
         uploaded_file = st.file_uploader("📂 رفع ملف Excel:", type=["xlsx", "xls"])
         if uploaded_file is not None:
             with open("salaries.xlsx", "wb") as f:
                 f.write(uploaded_file.getbuffer())
-            st.success("✨ تم التحديث!")
+            st.success("✨ تم التحديث بنجاح!")
 
 # ==========================================
 # 4. ترويسة النظام
 # ==========================================
 st.markdown("""
-<div class="print-hide" style='background: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px solid #cbd5e1;'>
+<div class="print-hide" style='background: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px solid #cbd5e1; margin-top: 30px;'>
     <h2 style='color: #0f172a; margin: 0;'>🏛️ بوابة الرواتب الإلكترونية</h2>
     <h4 style='color: #475569; margin-top: 5px; font-weight: normal;'>جامعة ابن سينا للعلوم الطبية والصيدلانية</h4>
 </div>
@@ -107,12 +113,12 @@ if search_button:
     if not emp_id.strip():
         st.warning("⚠️ يرجى كتابة الرقم الوظيفي أولاً.")
     elif not os.path.exists("salaries.xlsx"):
-        st.error("❌ ملف قاعدة البيانات غير موجود.")
+        st.error("❌ ملف قاعدة البيانات غير موجود. الرجاء رفع الملف من لوحة الإدارة.")
     else:
         try:
             df = pd.read_excel("salaries.xlsx")
             if 'الرقم الوظيفي' not in df.columns:
-                st.error("❌ لا يوجد عمود باسم 'الرقم الوظيفي'.")
+                st.error("❌ لا يوجد عمود باسم 'الرقم الوظيفي' في ملف الإكسيل.")
             else:
                 df['الرقم الوظيفي'] = df['الرقم الوظيفي'].astype(str).str.strip()
                 search_query = str(emp_id).strip()
@@ -121,7 +127,7 @@ if search_button:
                 if not user_data.empty:
                     row = user_data.iloc[0]
                     
-                    # تم إزالة جميع المسافات البادئة (Indentation) هنا لكي لا يظهر ككود برمجي
+                    # تم إزالة المسافات البادئة بالكامل لمنع ظهور الكود البرمجي
                     html_unified_card = f"""
 <div class="receipt-container" style="direction: rtl; background: white; border-radius: 10px; padding: 25px; border: 2px solid #cbd5e1; max-width: 550px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
 <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px;">
@@ -206,4 +212,5 @@ if search_button:
                     st.error("❌ لم يتم العثور على موظف بهذا الرقم الوظيفي.")
                     
         except Exception as e:
-            st.error(f"⚠️ حدث خطأ فني: {e}")
+            # تم تبسيط رسالة الخطأ لكي لا تكشف تفاصيل برمجية دقيقة
+            st.error("⚠️ حدث خطأ أثناء معالجة البيانات. يرجى التأكد من صحة ملف الإكسيل المرفوع.")
