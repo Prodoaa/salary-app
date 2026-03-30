@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. التصميم الاحترافي (CSS)
+# 2. التصميم الاحترافي (CSS) + إعدادات الطباعة الذكية
 # ==========================================
 st.markdown("""
 <style>
@@ -36,13 +36,45 @@ st.markdown("""
         transform: translateY(-2px); background: linear-gradient(90deg, #0369a1 0%, #075985 100%);
     }
 
-    /* إعدادات الطباعة للبطاقة الموحدة */
+    /* ========================================== */
+    /* إعدادات الطباعة (الوصل فقط) */
+    /* ========================================== */
     @media print {
-        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        @page { size: A4 portrait; margin: 15mm; }
-        [data-testid="stSidebar"], header, [data-testid="stForm"], iframe, button { display: none !important; }
-        .stApp { background: white !important; }
-        .receipt-container { page-break-inside: avoid !important; box-shadow: none !important; border: 1px solid #000 !important; }
+        /* إخفاء الألوان الخلفية وكل شيء في الصفحة */
+        body * {
+            visibility: hidden !important;
+        }
+        
+        /* إظهار بطاقة الراتب ومحتوياتها فقط */
+        .receipt-container, .receipt-container * {
+            visibility: visible !important;
+        }
+        
+        /* وضع البطاقة في أعلى الورقة وتوسيطها */
+        .receipt-container {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            max-width: 600px !important;
+            box-shadow: none !important;
+            border: 2px solid #000 !important;
+            padding: 20px !important;
+        }
+
+        /* ضبط إعدادات الورقة */
+        @page { 
+            size: A4 portrait; 
+            margin: 15mm; 
+        }
+        
+        /* إجبار الطابعة على طباعة الألوان (مثل الأخضر والأحمر) */
+        * {
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -103,7 +135,6 @@ if search_button:
                 if not user_data.empty:
                     row = user_data.iloc[0]
                     
-                    # الكود تم إزالة المسافات منه لكي لا يظهر كنص
                     html_unified_card = f"""
 <div class="receipt-container" style="direction: rtl; background: white; border-radius: 10px; padding: 25px; border: 2px solid #cbd5e1; max-width: 550px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
     <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px;">
