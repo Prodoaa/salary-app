@@ -32,49 +32,41 @@ st.markdown("""
         color: white; border-radius: 8px; border: none; padding: 8px;
         font-size: 16px; font-weight: bold; transition: all 0.3s ease;
     }
-    [data-testid="stFormSubmitButton"] button:hover {
-        transform: translateY(-2px); background: linear-gradient(90deg, #0369a1 0%, #075985 100%);
-    }
 
     /* ========================================== */
-    /* إعدادات الطباعة (الوصل فقط) */
+    /* إعدادات الطباعة (لحل مشكلة المربع الأسود) */
     /* ========================================== */
     @media print {
-        /* إخفاء الألوان الخلفية وكل شيء في الصفحة */
-        body * {
-            visibility: hidden !important;
+        /* 1. إزالة كل شيء في الشاشة من الجذور حتى لا يأخذ مساحة */
+        .print-hide, [data-testid="stSidebar"], header, footer, [data-testid="stForm"], button, hr, .stDivider {
+            display: none !important;
         }
         
-        /* إظهار بطاقة الراتب ومحتوياتها فقط */
-        .receipt-container, .receipt-container * {
-            visibility: visible !important;
-        }
-        
-        /* وضع البطاقة في أعلى الورقة وتوسيطها */
-        .receipt-container {
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            margin: 0 auto !important;
-            width: 100% !important;
-            max-width: 600px !important;
-            box-shadow: none !important;
-            border: 2px solid #000 !important;
-            padding: 20px !important;
+        /* 2. إجبار خلفية الصفحة على أن تكون بيضاء بالكامل وتجاهل الوضع الليلي */
+        html, body, .stApp, [data-testid="stAppViewContainer"], main, .block-container {
+            background: white !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+            color: black !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
 
-        /* ضبط إعدادات الورقة */
-        @page { 
-            size: A4 portrait; 
-            margin: 15mm; 
+        /* 3. ترتيب شكل الوصل ليكون في أعلى منتصف الورقة */
+        .receipt-container {
+            display: block !important;
+            position: relative !important;
+            width: 100% !important;
+            max-width: 700px !important;
+            margin: 0 auto !important;
+            border: 2px solid #000 !important; /* إطار أسود واضح للطباعة */
+            box-shadow: none !important;
+            page-break-inside: avoid !important;
         }
-        
-        /* إجبار الطابعة على طباعة الألوان (مثل الأخضر والأحمر) */
-        * {
-            -webkit-print-color-adjust: exact !important; 
-            print-color-adjust: exact !important;
-        }
+
+        /* إعدادات حجم الورقة القياسي */
+        @page { size: A4 portrait; margin: 10mm; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -96,8 +88,9 @@ with st.sidebar:
 # ==========================================
 # 4. ترويسة النظام
 # ==========================================
+# تمت إضافة كلاس print-hide هنا ليختفي هذا العنوان عند الطباعة
 st.markdown("""
-<div style='background: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px solid #cbd5e1;'>
+<div class="print-hide" style='background: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px solid #cbd5e1;'>
     <h2 style='color: #0f172a; margin: 0;'>🏛️ بوابة الرواتب الإلكترونية</h2>
     <h4 style='color: #475569; margin-top: 5px; font-weight: normal;'>جامعة ابن سينا للعلوم الطبية والصيدلانية</h4>
 </div>
